@@ -42,6 +42,7 @@ dependencies = [
  "csv",
  "dotenv",
  "rand",
+ "serde",
  "serde_derive",
 ]
 

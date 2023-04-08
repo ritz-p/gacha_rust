@@ -1,6 +1,7 @@
 extern crate rand;
 extern crate csv;
 use rand::Rng;
+use serde_derive::{Deserialize,Serialize};
 use std::fs;
 use std::io;
 pub fn gacha(path: &str) -> String{
@@ -14,7 +15,6 @@ pub fn gacha(path: &str) -> String{
 
     let rand = rng.gen_range(0..sum);
     let mut res = "".to_string();
-    println!("rand={}",rand);
     for gift in &gifts{
         sum -= gift.weight;
         if sum < rand{
@@ -33,18 +33,15 @@ fn fopen(path: &str) -> Result<String,io::Error>{
 fn parse(content: String) -> Result<Vec<GachaElement>,io::Error>{
     let mut gifts:Vec<GachaElement> = vec![];
     let mut reader = csv::ReaderBuilder::new().has_headers(false).from_reader(content.as_bytes());
-    for record in reader.records(){
-        let record = record?;
-        gifts.push(
-            GachaElement{
-                name: record[0].to_string(),
-                weight: record[1].to_owned().parse().unwrap()
-            }
-        );
+    for res in reader.deserialize(){
+        let record:GachaElement = res?;
+        gifts.push(record);
     }
     Ok(gifts)
 }
 
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct GachaElement{
     name: String,
     weight: usize,
